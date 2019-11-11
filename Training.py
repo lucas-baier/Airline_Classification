@@ -6,10 +6,11 @@ from xgboost import XGBRegressor
 import time
 from datetime import datetime
 import pickle
+import gc
 
 start_time = time.time()
 
-data = pd.read_csv('airline_14col.data', delimiter=',', header=None)
+data = pd.read_csv('1988_14col.data', delimiter=',', header=None)
 
 end_time = time.time()
 duration = end_time - start_time
@@ -39,13 +40,23 @@ def preprocessing(data):
 
     end_time = time.time()
     duration = end_time - start_time
+
+    print(data_encoded.info())
+    print(data_full.info())
+    print(data_reduced.info())
+
+    del data_reduced
+    del data_full
+    del data_encoded
+
+    gc.collect()
+
     print('Duration Preprocessing: ', duration)
 
     return X, y
 
 
-X, y = preprocessing(data_short)
-X_train, y_train = X, y
+X_train, y_train = preprocessing(data_short)
 
 
 def fit_model(X, y):
