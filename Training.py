@@ -14,7 +14,7 @@ data = pd.read_csv('airline_14col.data', delimiter=',', header=None)
 end_time = time.time()
 duration = end_time - start_time
 
-print('Duration: ', (end_time-start_time))
+print('Duration LoadingData: ', (end_time-start_time))
 
 column_names = ['Year','Month','DayofMonth','DayofWeek','CRSDepTime','CRSArrTime','UniqueCarrier',
            'FlightNum','ActualElapsedTime','Origin','Dest','Distance','Diverted','ArrDelay']
@@ -41,7 +41,7 @@ def preprocessing(data):
 
     return X, y
 
-data_short = data[data['Year'] < 1988]
+data_short = data[data['Year'] < 1989]
 
 X, y = preprocessing(data_short)
 X_train, y_train = X, y
