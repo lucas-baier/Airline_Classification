@@ -10,7 +10,7 @@ import gc
 
 start_time = time.time()
 
-data = pd.read_csv('1988_14col.data', delimiter=',', header=None)
+data = pd.read_csv('airline_14col.data', delimiter=',', header=None)
 
 end_time = time.time()
 duration = end_time - start_time
