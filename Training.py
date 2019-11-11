@@ -41,7 +41,7 @@ def preprocessing(data):
 
     return X, y
 
-data_short = data[data['Year'] < 1989]
+data_short = data[data['Year'] < 1988]
 
 X, y = preprocessing(data_short)
 X_train, y_train = X, y
