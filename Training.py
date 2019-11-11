@@ -21,6 +21,8 @@ column_names = ['Year','Month','DayofMonth','DayofWeek','CRSDepTime','CRSArrTime
 
 data.columns = column_names
 
+data_short = data[data['Year'] < 1989]
+
 
 def preprocessing(data):
     start_time = time.time()
@@ -32,16 +34,15 @@ def preprocessing(data):
     data_reduced['ArrDelay'][data_reduced['ArrDelay'] < 0] = 0
     data_full = pd.concat([data_reduced, data_encoded], axis=1)
 
-    y = data_full['ArrDelay']
-    X = data_full.drop(['ArrDelay'], axis=1)
+    y = np.array(data_full['ArrDelay'])
+    X = np.array(data_full.drop(['ArrDelay'], axis=1))
 
     end_time = time.time()
     duration = end_time - start_time
-    print('Duration Preprocessing: ', (end_time - start_time))
+    print('Duration Preprocessing: ', duration)
 
     return X, y
 
-data_short = data[data['Year'] < 1989]
 
 X, y = preprocessing(data_short)
 X_train, y_train = X, y
