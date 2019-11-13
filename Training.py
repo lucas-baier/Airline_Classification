@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-from xgboost import XGBRegressor
+from xgboost.sklearn import XGBRegressor
 import time
 from datetime import datetime
 import pickle
@@ -22,7 +22,7 @@ def fit_model(X, y):
     print('Model Fitting started: ', datetime.now())
     start_time = time.time()
 
-    classifier = XGBRegressor(objective='reg:squarederror', n_jobs=8)
+    classifier = XGBRegressor(objective='reg:squarederror', n_jobs=8, n_estimators= 100)
     classifier.fit(X_train, y_train)
     pickle.dump(classifier, open("staticModel.pickle.dat", 'wb'))
 
