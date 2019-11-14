@@ -77,6 +77,8 @@ def compute_predictions(model, X_test, y_test, results):
 
 
 model_name = 'static_model'
+
+print('Fit model with data from {} to {}'.format(X_train['Year'].min(), X_train['Year'].max()))
 model = fit_model(X_train, y_train, model_name)
 
 loaded_model = pickle.load(open("models/{}.pickle.dat".format(model_name),'rb'))
