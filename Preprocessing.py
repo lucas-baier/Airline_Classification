@@ -32,6 +32,9 @@ print(data.shape)
 
 data_short = data[data['Year'] < 1989]
 
+data_ORD = data_short[data_short['Origin'] == 'ORD']
+#print(data_ORD.shape)
+
 #Pring current memory usage
 #print(h.heap())
 
@@ -40,10 +43,10 @@ def preprocessing(data):
     start_time = time.time()
 
     # One-Hot Encoding
-    data_encoded = dd.get_dummies(data[['UniqueCarrier', 'Origin', 'Dest']].categorize()).compute()
+    data_encoded = dd.get_dummies(data[['DayofWeek','UniqueCarrier', 'Origin', 'Dest']].categorize()).compute()
     print('Data enocded: ', (time.time()-start_time))
 
-    data_reduced = data.drop(['UniqueCarrier', 'Origin', 'Dest', 'FlightNum', 'Diverted'], axis=1).compute()
+    data_reduced = data.drop(['UniqueCarrier', 'Origin', 'Dest', 'FlightNum', 'Diverted', 'DayofWeek'], axis=1).compute()
     y = data_reduced['ArrDelay']
     y[y<0] = 0
     print(y.shape)
@@ -79,28 +82,11 @@ def preprocessing(data):
     return X, y
 
 
-X_train, y_train = preprocessing(data_short)
+X_train, y_train = preprocessing(data_ORD)
+
+
+#Save files
 
 joblib.dump(X_train, 'X_train.joblib', compress=3)
 joblib.dump(y_train, 'y_train.joblib', compress=3)
 
-
-# def fit_model(X, y):
-#     print('Model Fitting started: ', datetime.now())
-#     start_time = time.time()
-#
-#     classifier = XGBRegressor(objective='reg:squarederror', n_jobs=-1)
-#     classifier.fit(X_train, y_train)
-#     pickle.dump(classifier, open("staticModel.pickle.dat", 'wb'))
-#
-#     end_time = time.time()
-#     duration = end_time - start_time
-#
-#     print('Duration Fitting: ', (end_time - start_time))
-#
-#     return classifier
-#
-# model = fit_model(X_train, y_train)
-#
-# loaded_model = pickle.load(open("staticModel.pickle.dat",'rb'))
-# loaded_model.predict(X_train).shape

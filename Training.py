@@ -22,7 +22,7 @@ def fit_model(X, y):
     print('Model Fitting started: ', datetime.now())
     start_time = time.time()
 
-    classifier = XGBRegressor(objective='reg:squarederror', n_jobs=8, n_estimators= 50, verbosity= 3)
+    classifier = XGBRegressor(objective='reg:squarederror', n_jobs=8, n_estimators= 1000, verbosity= 3)
     classifier.fit(X_train, y_train)
     pickle.dump(classifier, open("staticModel.pickle.dat", 'wb'))
 
