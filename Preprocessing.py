@@ -30,7 +30,8 @@ column_names = ['Year','Month','DayofMonth','DayofWeek','CRSDepTime','CRSArrTime
 data.columns = column_names
 print(data.shape)
 
-data_short = data[data['Year'] < 1989]
+#data_short = data[data['Year'] < 1989]
+data_short = data
 
 data_ORD = data_short[data_short['Origin'] == 'ORD']
 #print(data_ORD.shape)
@@ -43,15 +44,11 @@ def preprocessing(data):
     start_time = time.time()
 
     # One-Hot Encoding
-    data_encoded = dd.get_dummies(data[['DayofWeek','UniqueCarrier', 'Origin', 'Dest']].categorize()).compute()
+    data['DayofWeek'] = data['DayofWeek'].astype('category')
+    data_encoded = dd.get_dummies(data[['UniqueCarrier', 'Origin', 'Dest', 'DayofWeek']].categorize()).compute()
     print('Data enocded: ', (time.time()-start_time))
 
-    data_reduced = data.drop(['UniqueCarrier', 'Origin', 'Dest', 'FlightNum', 'Diverted', 'DayofWeek'], axis=1).compute()
-    y = data_reduced['ArrDelay']
-    y[y<0] = 0
-    print(y.shape)
-
-    data_reduced = data_reduced.drop(['ArrDelay'], axis=1)
+    data_reduced = data.drop(['UniqueCarrier', 'Origin', 'Dest', 'FlightNum', 'Diverted','DayofWeek'], axis=1).compute()
     print('Data reduced: ', (time.time() - start_time))
 
     X = pd.concat([data_reduced, data_encoded], axis=1)
@@ -79,14 +76,13 @@ def preprocessing(data):
 
     print('Duration Preprocessing: ', duration)
 
-    return X, y
+    return X
 
 
-X_train, y_train = preprocessing(data_ORD)
+data_all = preprocessing(data_ORD)
 
 
 #Save files
 
-joblib.dump(X_train, 'X_train.joblib', compress=3)
-joblib.dump(y_train, 'y_train.joblib', compress=3)
+joblib.dump(data_all, 'data_ORD.joblib', compress=3)
 
