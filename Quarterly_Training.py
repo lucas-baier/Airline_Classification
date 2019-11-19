@@ -48,7 +48,6 @@ for i in range(no_retraining):
     xgboost_model.fit_model(X_train, y_train)
 
     results_dict = xgboost_model.compute_predictions(X_test, y_test)
-    print(results_dict)
 
 joblib.dump(results_dict, 'quarterly_retraining_results_all.joblib', compress=3)
 
