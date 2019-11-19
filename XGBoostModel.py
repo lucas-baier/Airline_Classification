@@ -30,7 +30,8 @@ from xgboost.sklearn import XGBRegressor
 class XGBoostModel():
     
     
-    def __init__(self, objective ='reg:squarederror', n_estimators = 1000, n_jobs=8, random_state = 123, verbosity=0, retraining_memory_save_mode = False):
+    def __init__(self, objective ='reg:squarederror', n_estimators = 1000, n_jobs=8, random_state = 123, verbosity=0,
+                 strategy_name = 'Static'):
         
 
         
@@ -61,7 +62,7 @@ class XGBoostModel():
         self.prediction_model = None
         self.actuals = None
         
-        self.model_name = None
+        self.strategy_name = strategy_name
         self.training_history = None
 
         self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'RMSE': [], 'MSE': [],
@@ -163,8 +164,8 @@ class XGBoostModel():
 
         print('Fit model with data from {} to {}'.format(start_train_date, end_train_date))
 
-        model_name = 'Quarterly_Retraining_{}_{}_{}_{}'.format(start_train_date.year, start_train_date.month,
-                                                               end_train_date.year, end_train_date.month)
+        model_name = '{}_{}_{}_{}_{}'.format(self.strategy_name, start_train_date.year, start_train_date.month,
+                                             end_train_date.year, end_train_date.month)
 
         start_time = time.time()
 
@@ -177,6 +178,75 @@ class XGBoostModel():
         self.prediction_model = regressor
 
 
+    def update_model(self, X_train, y_train):
+
+        print('Model Updating started: ', datetime.now())
+
+        start_train_date = pd.Timestamp(year=X_train['Year'].iloc[0], month=X_train['Month'].iloc[0],
+                                       day=X_train['DayofMonth'].iloc[0]).date()
+
+        end_train_date = pd.Timestamp(year=X_train['Year'].iloc[-1], month=X_train['Month'].iloc[-1],
+                                       day=X_train['DayofMonth'].iloc[-1]).date()
+
+        print('Update model with data from {} to {}'.format(start_train_date, end_train_date))
+
+        model_name = '{}_{}_{}_{}_{}'.format(self.strategy_name, start_train_date.year, start_train_date.month,
+                                             end_train_date.year, end_train_date.month)
+
+        Save_PATH = 'models/temp_boosting_models/'
+
+        start_time = time.time()
+
+        if self.prediction_model == None:
+            print('self.predicion_model = None')
+
+            # load existing model from disc:
+
+            # load model:
+            file_to_load = Save_PATH + "Quarterly_Retraining_1990_1_1991_12" + '.pickle.dat'
+            # load model into dict:
+            prediction_model = pickle.load(open(file_to_load, "rb"))
+            self.prediction_model = prediction_model
+
+        else:
+            # store current model:
+            final_model_name = model_name + '.pickle.dat'
+            file_to_save = Save_PATH + final_model_name
+            # save model on disk:
+            pickle.dump(self.prediction_model, open(file_to_save, "wb"))
+
+            print('self.predicion_model != None')
+            # delete model to release memory:
+            # set self.prediction_model to None:
+            print('Delete model')
+            self.prediction_model._Booster.__del__()
+            self.prediction_model = None
+
+            print('>> prediciton model is loaded from disk')
+            print('Model to load: ', model_name)
+            # load existing model from disc:
+
+            file_to_load = Save_PATH + model_name + '.pickle.dat'  # self.model_name stores name of previous model!
+            # load model into dict:
+            prediction_model = pickle.load(open(file_to_load, "rb"))
+
+            current_booster_obj = prediction_model.get_booster()
+            print('Multivar XGBoost Model is updated..')
+            updated_model = prediction_model.fit(X_train, y_train, xgb_model=current_booster_obj)
+            self.prediction_model = updated_model
+
+            # Delete model to release memory
+            #updated_model._Booster.__del__()
+            #del updated_model
+            #gc.collect()
+
+            # store current model:
+            final_model_name = model_name + '.pickle.dat'
+            file_to_save = Save_PATH + final_model_name
+            # save model on disk:
+            pickle.dump(self.prediction_model, open(file_to_save, "wb"))
+
+            print('Duration Fitting: ', (time.time() - start_time))
 
 
 
