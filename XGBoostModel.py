@@ -64,7 +64,8 @@ class XGBoostModel():
         self.model_name = None
         self.training_history = None
 
-        self.results = {'Year': [], 'RMSE': [], 'MSE': [], 'SMAPE': [], 'Predictions': []}
+        self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'RMSE': [], 'MSE': [],
+                        'SMAPE': [], 'Predictions': []}
 
         
      
@@ -101,8 +102,8 @@ class XGBoostModel():
         self.model_name = model_name
 
     
-    def generate_data(self, data, start_train_year, last_train_set_year, start_test_set_year,
-                      end_test_set_year, verbose=0):
+    def generate_data(self, data, start_train_date, last_train_date, start_test_date,
+                      end_test_date, verbose=0):
         
         
         '''
@@ -112,15 +113,16 @@ class XGBoostModel():
             after that, data is split into training data/ valid data / test data based on given input dates/"years"
             
         '''
+        end_train_date = start_train_date + pd.DateOffset(years=2)
 
-        
+
         if verbose == 1:
             print('generate data..')
-            print('start_train_year: ', start_train_year)
-            print('last_train_set_year: ', last_train_set_year)
+            print('start_train_year: ', start_train_date)
+            print('last_train_set_year: ', end_train_date)
 
-            print('start_test_set_year: ', start_test_set_year)
-            print('end_test_set_year: ', end_test_set_year)
+            print('start_test_set_year: ', start_test_date)
+            print('end_test_set_year: ', end_test_date)
 
 
 
@@ -129,8 +131,8 @@ class XGBoostModel():
 
         # create train/test split
 
-        data_train = data.loc[(data['Year'] >= start_train_year) & (data['Year'] <= last_train_set_year)]
-        data_test = data.loc[(data['Year'] >= start_test_set_year) & (data['Year'] <= end_test_set_year)]
+        data_train = data.loc[(data['Date'] >= start_train_date) & (data['Date'] < end_train_date)]
+        data_test = data.loc[(data['Date'] >= start_test_date) & (data['Date'] < end_test_date)]
 
         print(data_train.shape)
 
@@ -139,8 +141,8 @@ class XGBoostModel():
         y_train = data_train.loc[:,'ArrDelay']
         y_test = data_test.loc[:,'ArrDelay']
 
-        X_train = data_train.drop(['ArrDelay'], axis=1)
-        X_test = data_test.drop(['ArrDelay'], axis=1)
+        X_train = data_train.drop(['ArrDelay', 'Date'], axis=1)
+        X_test = data_test.drop(['ArrDelay', 'Date'], axis=1)
 
         gc.collect()
         
@@ -152,13 +154,21 @@ class XGBoostModel():
     def fit_model(self, X_train, y_train):
 
         print('Model Fitting started: ', datetime.now())
-        print('Fit model with data from {} to {}'.format(X_train['Year'].min(), X_train['Year'].max()))
 
-        model_name = 'static_model_{}_{}'.format(X_train['Year'].min(), X_train['Year'].max())
+        start_train_date = pd.Timestamp(year=X_train['Year'].iloc[0], month=X_train['Month'].iloc[0],
+                                       day=X_train['DayofMonth'].iloc[0]).date()
+
+        end_train_date = pd.Timestamp(year=X_train['Year'].iloc[-1], month=X_train['Month'].iloc[-1],
+                                       day=X_train['DayofMonth'].iloc[-1]).date()
+
+        print('Fit model with data from {} to {}'.format(start_train_date, end_train_date))
+
+        model_name = 'Quarterly_Retraining_{}_{}_{}_{}'.format(start_train_date.year, start_train_date.month,
+                                                               end_train_date.year, end_train_date.month)
 
         start_time = time.time()
 
-        regressor = XGBRegressor(objective='reg:squarederror', n_jobs=8, n_estimators= 1000, verbosity= 3)
+        regressor = XGBRegressor(objective='reg:squarederror', n_jobs=8, n_estimators= 1000, verbosity= 1)
         regressor.fit(X_train, y_train)
         pickle.dump(regressor, open("models/{}.pickle.dat".format(model_name), 'wb'))
 
@@ -191,16 +201,24 @@ class XGBoostModel():
         mse = mean_squared_error(y_test, y_predicted)
         smape = self.sMAPE(y_test, y_predicted)
 
+        start_test_date = pd.Timestamp(year=X_test['Year'].iloc[0], month=X_test['Month'].iloc[0],
+                                       day=X_test['DayofMonth'].iloc[0]).date()
+
+        end_test_date = pd.Timestamp(year=X_test['Year'].iloc[-1], month=X_test['Month'].iloc[-1],
+                                       day=X_test['DayofMonth'].iloc[-1]).date()
+
         results['Year'].append((year))
+        results['Start_Test'].append(start_test_date)
+        results['End_Test'].append(end_test_date)
 
         results['RMSE'].append(rmse)
-        print('RMSE {}: '.format(year), rmse)
+        print('RMSE from {} to {}: '.format(start_test_date, end_test_date), rmse)
 
         results['MSE'].append(mse)
-        print('MSE {}: '.format(year), mse)
+        print('MSE from {} to {}: '.format(start_test_date, end_test_date), mse)
 
         results['SMAPE'].append(smape)
-        print('SMAPE {}: '.format(year), smape)
+        print('SMAPE from {} to {}: '.format(start_test_date, end_test_date), smape)
 
         results['Predictions'].append(y_predicted)
 

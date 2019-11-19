@@ -86,3 +86,25 @@ data_all = preprocessing(data_ORD)
 
 joblib.dump(data_all, 'data_ORD.joblib', compress=3)
 
+data.loc[data['ArrDelay'] < 0, 'ArrDelay'] = 0
+
+# Use data after 1990 since sparse data for years 1987 and 1989
+data = data[data.Year >= 1990]
+
+datetime_list = []
+
+for i in range(data.shape[0]):
+    stamp = pd.Timestamp(year=data['Year'].iloc[i], month=data['Month'].iloc[i], day=data['DayofMonth'].iloc[i])
+    datetime_list.append(pd.to_datetime(stamp))
+
+data['Date'] = datetime_list
+
+joblib.dump(data, 'data_ORD_date.joblib', compress=3)
+
+
+#data = data.reset_index(drop = True)
+
+
+### Sample for local processing
+#data = data.sample(n = 25000, replace = False, random_state=42)
+#data = data.sort_values(by = ['Date'])
