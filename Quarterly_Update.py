@@ -21,7 +21,7 @@ data = joblib.load("data_ORD_date.joblib")
 #
 #
 # Local processing
-#data = joblib.load("sample_data_ORD_date.joblib")
+# data = joblib.load("sample_data_ORD_date.joblib")
 #
 print('Duration Loading: ', (time.time() - start_time))
 
@@ -31,7 +31,7 @@ print('Duration Loading: ', (time.time() - start_time))
 xgboost_model = XGBoostModel(strategy_name='Quarterly_Update')
 
 start_train_date = pd.Timestamp('1989-10-01')
-no_retraining = (len(data.Year.unique())-2)*4 -1
+no_retraining = (len(data.Year.unique())-2)*4
 #no_retraining = 5
 
 for i in range(no_retraining):
@@ -41,6 +41,8 @@ for i in range(no_retraining):
 
     start_test_date = end_train_date
     end_test_date = start_test_date + pd.DateOffset(months = 3)
+
+    # print(start_train_date, end_train_date, start_test_date, end_test_date)
 
 
     X_train, y_train, X_test, y_test = xgboost_model.generate_data(data, start_train_date, end_train_date,

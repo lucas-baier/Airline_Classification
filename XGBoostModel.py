@@ -66,7 +66,7 @@ class XGBoostModel():
         self.training_history = None
 
         self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'RMSE': [], 'MSE': [],
-                        'SMAPE': [], 'Predictions': []}
+                        'SMAPE': [], 'Predictions': [], 'y_true': []}
 
         
      
@@ -280,6 +280,7 @@ class XGBoostModel():
         results['Year'].append((year))
         results['Start_Test'].append(start_test_date)
         results['End_Test'].append(end_test_date)
+        results['y_true'].append(y_test)
 
         results['RMSE'].append(rmse)
         print('RMSE from {} to {}: '.format(start_test_date, end_test_date), rmse)
