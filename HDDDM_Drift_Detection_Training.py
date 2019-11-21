@@ -16,14 +16,14 @@ from XGBoostModel import XGBoostModel
 print('Data loading started: ', datetime.now())
 start_time = time.time()
 
-# data = joblib.load("data_ORD_date.joblib")
+data = joblib.load("data_ORD_date.joblib")
 
 #
 #
 #
 # Local processing
-data = joblib.load("sample_data_ORD_date.joblib")
-print('Local file loaded')
+# data = joblib.load("sample_data_ORD_date.joblib")
+# print('Local file loaded')
 #
 print('Duration Loading: ', (time.time() - start_time))
 
