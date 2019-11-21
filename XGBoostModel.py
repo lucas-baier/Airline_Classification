@@ -65,8 +65,8 @@ class XGBoostModel():
         self.strategy_name = strategy_name
         self.training_history = None
 
-        self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'RMSE': [], 'MSE': [],
-                        'SMAPE': [], 'Predictions': [], 'y_true': []}
+        self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'Date': [],
+                        'RMSE': [], 'MSE': [], 'SMAPE': [], 'Predictions': [], 'y_true': []}
 
         
      
@@ -277,9 +277,16 @@ class XGBoostModel():
         end_test_date = pd.Timestamp(year=X_test['Year'].iloc[-1], month=X_test['Month'].iloc[-1],
                                        day=X_test['DayofMonth'].iloc[-1]).date()
 
+        def create_date(row_year, row_month, row_day):
+            data = pd.Timestamp(year=row_year, month=row_month, day=row_day).date()
+            return data
+
+        date = X_test.apply(lambda row: create_date(row['Year'], row['Month'], row['DayofMonth']), axis=1)
+
         results['Year'].append((year))
         results['Start_Test'].append(start_test_date)
         results['End_Test'].append(end_test_date)
+        results['Date'].append(date)
         results['y_true'].append(y_test)
 
         results['RMSE'].append(rmse)
