@@ -52,7 +52,10 @@ while start_test_date < pd.Timestamp('2008-10-01'):
 
     temp_drifts = []
 
-    hdddm = HDDDM(batch_size=10000, gamma=2)
+    hdddm = HDDDM(batch_size=10000, gamma=1.5)
+
+    # Local HDDDM
+    # hdddm = HDDDM(batch_size=100, gamma=0.3)
     for i in range(results_dict['y_true'][-1].shape[0]):
         hdddm.add_element(results_dict['y_true'][-1].iloc[i])
         if hdddm.detected_change():
