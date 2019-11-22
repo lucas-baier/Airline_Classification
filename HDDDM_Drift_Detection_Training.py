@@ -27,7 +27,7 @@ data = joblib.load("data_ORD_date.joblib")
 #
 print('Duration Loading: ', (time.time() - start_time))
 
-
+# np.seterr(all='raise')
 
 # Data starts with 1990-01-01, last entry is 2008-10-31, last prediction for Q3 2008, training from Q3/2006 - Q2/2008
 xgboost_model = XGBoostModel(strategy_name='HDDDM_Retraining')
@@ -36,6 +36,14 @@ training_flag = True
 
 start_train_date = pd.Timestamp('1990-01-01')
 start_test_date = pd.Timestamp('1992-01-01')
+
+hdddm = HDDDM(batch_size=10000, gamma=1.5)
+
+
+# Local HDDDM
+# hdddm = HDDDM(batch_size=100, gamma=0.5)
+
+print('HDDDM parameters: ', hdddm.batch_size, hdddm.gamma)
 
 while start_test_date < pd.Timestamp('2008-10-01'):
 
@@ -52,10 +60,6 @@ while start_test_date < pd.Timestamp('2008-10-01'):
 
     temp_drifts = []
 
-    hdddm = HDDDM(batch_size=10000, gamma=1.5)
-
-    # Local HDDDM
-    # hdddm = HDDDM(batch_size=100, gamma=0.3)
     for i in range(results_dict['y_true'][-1].shape[0]):
         hdddm.add_element(results_dict['y_true'][-1].iloc[i])
         if hdddm.detected_change():
@@ -80,6 +84,8 @@ results_dict['Drifts'] = list_drift
 
 # Save results
 joblib.dump(results_dict, '{}_results_all.joblib'.format(xgboost_model.strategy_name), compress=3)
+
+
 
 
 

@@ -422,15 +422,15 @@ class HDDDM(object):
             #compute Hellinger Distance:
             n_bins = math.floor(np.sqrt(len(self.hist_P))) #based on cardinality of self.hist_P
             self.hellinger_t = self.hist_hellinger_distance(self.hist_Q, self.hist_P, n_bins)
-            
+
             #compute measures to update threshold:
             mean_eps = np.mean(np.abs(self.epsilon_memory))
             std_eps = np.std(np.abs(self.epsilon_memory))
 
-            #get difference in divergence:
+            # get difference in divergence:
             self.epsilon = self.hellinger_t - self.hellinger_t_1
-            
-            #append epsilon:
+
+            # append epsilon:
             self.epsilon_memory.append(self.epsilon)
 
             #compute threshold:
