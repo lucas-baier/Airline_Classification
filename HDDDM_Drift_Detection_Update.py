@@ -83,7 +83,7 @@ while start_test_date < pd.Timestamp('2008-10-01'):
 results_dict['Drifts'] = list_drift
 
 # Save results
-joblib.dump(results_dict, '{}_results_all.joblib'.format(xgboost_model.strategy_name), compress=3)
+joblib.dump(results_dict, 'results/{}_results_all.joblib'.format(xgboost_model.strategy_name), compress=3)
 
 
 
