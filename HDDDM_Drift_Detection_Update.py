@@ -41,7 +41,7 @@ hdddm = HDDDM(batch_size=10000, gamma=1.5)
 
 
 # Local HDDDM
-# hdddm = HDDDM(batch_size=100, gamma=0.5)
+# hdddm = HDDDM(batch_size=100, gamma=0.7)
 
 print('HDDDM parameters: ', hdddm.batch_size, hdddm.gamma)
 
