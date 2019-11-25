@@ -58,7 +58,7 @@ def transform_label(y_true, y_predicted):
     return(df)
 
 
-adwin = ADWIN(delta=20)
+adwin = ADWIN(delta=24)
 
 #Local ADWIN
 # adwin = ADWIN(delta = 10)
