@@ -15,13 +15,13 @@ from XGBoostModel import XGBoostModel
 print('Data loading started: ', datetime.now())
 start_time = time.time()
 
-data = joblib.load("data_ORD_date_class.joblib")
+# data = joblib.load("data_ORD_date_class.joblib")
 
 #
 #
 #
 # Local processing
-# data = joblib.load("sample_data_ORD_date_class.joblib")
+data = joblib.load("sample_data_ORD_date_class.joblib")
 
 print('Duration Loading: ', (time.time() - start_time))
 
@@ -45,4 +45,4 @@ xgboost_model.fit_model(X_train, y_train)
 
 results_dict = xgboost_model.compute_predictions(X_test, y_test)
 
-joblib.dump(results_dict, '{}_results_all.joblib'.format(xgboost_model.strategy_name), compress=3)
+xgboost_model.save_results(results_dict)

@@ -20,6 +20,7 @@ import gc
 import pickle
 import time
 from datetime import datetime
+import joblib
 
 import xgboost as xgb
 
@@ -303,3 +304,5 @@ class XGBoostModel():
 
         return results
 
+    def save_results(self, results_dict):
+        joblib.dump(results_dict, 'results/{}_results_all.joblib'.format(self.strategy_name), compress=3)

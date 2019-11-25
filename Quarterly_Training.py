@@ -51,4 +51,4 @@ for i in range(no_retraining):
 
     results_dict = xgboost_model.compute_predictions(X_test, y_test)
 
-joblib.dump(results_dict, '{}_results_all.joblib'.format(xgboost_model.strategy_name), compress=3)
+xgboost_model.save_results(results_dict)
