@@ -4,6 +4,7 @@ import numpy as np
 
 import sklearn.preprocessing
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
@@ -24,6 +25,7 @@ import xgboost as xgb
 
 #import SKlearn Wrapper:
 from xgboost.sklearn import XGBRegressor
+from xgboost.sklearn import XGBClassifier
 
 
 
@@ -66,7 +68,7 @@ class XGBoostModel():
         self.training_history = None
 
         self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'Date': [],
-                        'RMSE': [], 'MSE': [], 'SMAPE': [], 'Predictions': [], 'y_true': []}
+                        'Accuracy': [], 'F1': [], 'Predictions': [], 'y_true': []}
 
         
      
@@ -169,13 +171,13 @@ class XGBoostModel():
 
         start_time = time.time()
 
-        regressor = XGBRegressor(objective='reg:squarederror', n_jobs=8, n_estimators= 1000, verbosity= 1)
-        regressor.fit(X_train, y_train)
-        pickle.dump(regressor, open("models/{}.pickle.dat".format(model_name), 'wb'))
+        classifier = XGBClassifier(n_jobs=8, n_estimators= 1000, verbosity= 1)
+        classifier.fit(X_train, y_train)
+        pickle.dump(classifier, open("models/{}.pickle.dat".format(model_name), 'wb'))
 
         print('Duration Fitting: ', (time.time() - start_time))
 
-        self.prediction_model = regressor
+        self.prediction_model = classifier
 
 
     def update_model(self, X_train, y_train):
@@ -267,9 +269,9 @@ class XGBoostModel():
         results = self.results
 
         year = X_test.iloc[0, 0]
-        rmse = self.RMSE(y_test, y_predicted)
-        mse = mean_squared_error(y_test, y_predicted)
-        smape = self.sMAPE(y_test, y_predicted)
+
+        accuracy = accuracy_score(y_test, y_predicted)
+        f1 = f1_score(y_test, y_predicted)
 
         start_test_date = pd.Timestamp(year=X_test['Year'].iloc[0], month=X_test['Month'].iloc[0],
                                        day=X_test['DayofMonth'].iloc[0]).date()
@@ -289,14 +291,11 @@ class XGBoostModel():
         results['Date'].append(date)
         results['y_true'].append(y_test)
 
-        results['RMSE'].append(rmse)
-        print('RMSE from {} to {}: '.format(start_test_date, end_test_date), rmse)
+        results['Accuracy'].append(accuracy)
+        print('Accuracy from {} to {}: '.format(start_test_date, end_test_date), accuracy)
 
-        results['MSE'].append(mse)
-        print('MSE from {} to {}: '.format(start_test_date, end_test_date), mse)
-
-        results['SMAPE'].append(smape)
-        print('SMAPE from {} to {}: '.format(start_test_date, end_test_date), smape)
+        results['F1'].append(f1)
+        print('F1 from {} to {}: '.format(start_test_date, end_test_date), f1)
 
         results['Predictions'].append(y_predicted)
 

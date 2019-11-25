@@ -15,16 +15,15 @@ from XGBoostModel import XGBoostModel
 print('Data loading started: ', datetime.now())
 start_time = time.time()
 
-data = joblib.load("data_ORD_date.joblib")
+# data = joblib.load("data_ORD_date_class.joblib")
 
 #
 #
 #
 # Local processing
-# data = joblib.load("sample_data_ORD_date.joblib")
-#
-print('Duration Loading: ', (time.time() - start_time))
+data = joblib.load("sample_data_ORD_date_class.joblib")
 
+print('Duration Loading: ', (time.time() - start_time))
 
 
 # Data starts with 1990-01-01, last entry is 2008-10-31, last prediction for Q3 2008, training from Q3/2006 - Q2/2008
