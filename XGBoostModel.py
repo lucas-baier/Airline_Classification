@@ -197,6 +197,7 @@ class XGBoostModel():
                                              end_train_date.year, end_train_date.month)
 
         Save_PATH = 'models/temp_boosting_models/'
+        Load_PATH = 'models/'
 
         start_time = time.time()
 
@@ -206,7 +207,7 @@ class XGBoostModel():
             # load existing model from disc:
 
             # load model:
-            file_to_load = Save_PATH + "Quarterly_Retraining_1990_1_1991_12" + '.pickle.dat'
+            file_to_load = Load_PATH + "Static_Model_1990_1_1991_12" + '.pickle.dat'
             # load model into dict:
             prediction_model = pickle.load(open(file_to_load, "rb"))
             self.prediction_model = prediction_model
