@@ -101,8 +101,11 @@ class XGBoostModel():
         Note: this only works if params of Class are the same as params used to train "model_to_load"
         
         '''
-        
-        self.prediction_model = model_to_load
+
+        file_to_load = model_to_load
+        prediction_model = pickle.load(open(file_to_load, "rb"))
+        self.prediction_model = prediction_model
+
         self.model_name = model_name
 
     
