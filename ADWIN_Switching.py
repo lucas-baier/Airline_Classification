@@ -18,14 +18,14 @@ from XGBoostModel import XGBoostModel
 print('Data loading started: ', datetime.now())
 start_time = time.time()
 
-# data = joblib.load("data_ORD_date_class.joblib")
+data = joblib.load("data_ORD_date_class.joblib")
 
 #
 #
 #
 # Local processing
-data = joblib.load("sample_data_ORD_date_class.joblib")
-print('Local file loaded')
+# data = joblib.load("sample_data_ORD_date_class.joblib")
+# print('Local file loaded')
 #
 print('Duration Loading: ', (time.time() - start_time))
 
@@ -63,7 +63,7 @@ while start_test_date < pd.Timestamp('2008-10-01'):
 
 
     if update_flag:
-        xgboost_model.fit_model(X_train, y_train)
+        xgboost_model.update_model(X_train, y_train)
 
         # Add date of updating to update_dates
         xgboost_model.results['Update'].append(end_train_date)
