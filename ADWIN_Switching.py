@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from xgboost.sklearn import XGBRegressor
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import pickle
 import gc
 from custom_drift_detectors import HDDDM, MannKendall, STEPD
@@ -31,18 +31,19 @@ print('Duration Loading: ', (time.time() - start_time))
 
 
 # Data starts with 1990-01-01, last entry is 2008-10-31, last prediction for Q3 2008, training from Q3/2006 - Q2/2008
-xgboost_model = XGBoostModel(strategy_name='ADWIN_Retraining')
+xgboost_model = XGBoostModel(strategy_name='ADWIN_Switching')
 list_drift = []
 training_flag = True
+update_flag = False
 
 start_train_date = pd.Timestamp('1990-01-01')
 start_test_date = pd.Timestamp('1992-01-01')
 
 # delta = 23 leads to 56 drifts!
-# adwin = ADWIN(delta=23)
+adwin = ADWIN(delta=23)
 
 #Local ADWIN
-adwin = ADWIN(delta = 15)
+# adwin = ADWIN(delta = 15)
 
 print('ADWIN parameters: ', adwin.delta)
 
@@ -57,9 +58,21 @@ while start_test_date < pd.Timestamp('2008-10-01'):
     if training_flag:
         xgboost_model.fit_model(X_train, y_train)
 
+        # Add date of fitting to train_dates
+        xgboost_model.results['Training'].append(end_train_date)
+
+
+    if update_flag:
+        xgboost_model.fit_model(X_train, y_train)
+
+        # Add date of updating to update_dates
+        xgboost_model.results['Update'].append(end_train_date)
+
+
     results_dict = xgboost_model.compute_predictions(X_test, y_test)
 
     temp_drifts = []
+
 
     df_results = pd.DataFrame({'y_true': results_dict['y_true'][-1], 'y_pred': results_dict['Predictions'][-1]})
     df_results['Correct'] = (df_results['y_true'] == df_results['y_pred'])
@@ -71,17 +84,30 @@ while start_test_date < pd.Timestamp('2008-10-01'):
             temp_drifts.append(results_dict['Date'][-1].iloc[i])
             adwin.reset()
 
+
     if not temp_drifts:
         print('No Drift Detected - Predict next three months')
         start_test_date = start_test_date + pd.DateOffset(months = 3)
         training_flag = False
+        update_flag = False
 
     if temp_drifts:
-        print('Drift detected - Retrain model')
+        print('Drift detected - Choice on model')
         list_drift.append(temp_drifts[0])
         start_train_date = temp_drifts[0] - pd.DateOffset(years = 2)
         start_test_date = start_train_date + pd.DateOffset(years =2)
-        training_flag = True
+
+        if (temp_drifts[0] - datetime.date(xgboost_model.results['Training'][-1])) > timedelta(days = 2*365):
+            training_flag = True
+            print('Retraining of model')
+            print('Date today: ', temp_drifts[0])
+            print('Date last training: ', datetime.date(xgboost_model.results['Training'][-1]))
+
+        else:
+            update_flag = True
+            print('Update of model')
+            print('Date today: ', temp_drifts[0])
+            print('Date last training: ', datetime.date(xgboost_model.results['Training'][-1]))
 
 # Save drift dates to results file
 results_dict['Drifts'] = list_drift

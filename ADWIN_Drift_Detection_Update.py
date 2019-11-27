@@ -61,10 +61,14 @@ while start_test_date < pd.Timestamp('2008-10-01'):
 
     temp_drifts = []
 
-    for i in range(results_dict['y_true'][-1].shape[0]):
-        adwin.add_element(results_dict['y_true'][-1].iloc[i])
+
+    df_results = pd.DataFrame({'y_true': results_dict['y_true'][-1], 'y_pred': results_dict['Predictions'][-1]})
+    df_results['Correct'] = (df_results['y_true'] == df_results['y_pred'])
+
+    for i in range(df_results.shape[0]):
+        adwin.add_element(df_results['Correct'].iloc[i])
         if adwin.detected_change():
-            print('Change detected ADWIN in data: ' + str(results_dict['y_true'][-1].iloc[i]) + ' - at date: ' + str(results_dict['Date'][-1].iloc[i]))
+            print('Change detected ADWIN in data: ' + str(df_results['Correct'].iloc[i]) + ' - at date: ' + str(results_dict['Date'][-1].iloc[i]))
             temp_drifts.append(results_dict['Date'][-1].iloc[i])
             adwin.reset()
 
