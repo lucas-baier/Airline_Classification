@@ -18,14 +18,14 @@ from XGBoostModel import XGBoostModel
 print('Data loading started: ', datetime.now())
 start_time = time.time()
 
-# data = joblib.load("data_ORD_date_class.joblib")
+data = joblib.load("data_ORD_date_class.joblib")
 
 #
 #
 #
 # Local processing
-data = joblib.load("sample_data_ORD_date_class.joblib")
-print('Local file loaded')
+# data = joblib.load("sample_data_ORD_date_class.joblib")
+# print('Local file loaded')
 #
 print('Duration Loading: ', (time.time() - start_time))
 
@@ -39,10 +39,10 @@ start_train_date = pd.Timestamp('1990-01-01')
 start_test_date = pd.Timestamp('1992-01-01')
 
 # delta = 23 leads to 56 drifts!
-# adwin = ADWIN(delta=23)
+adwin = ADWIN(delta=23)
 
 #Local ADWIN
-adwin = ADWIN(delta = 15)
+# adwin = ADWIN(delta = 15)
 
 print('ADWIN parameters: ', adwin.delta)
 
