@@ -69,7 +69,8 @@ class XGBoostModel():
         self.training_history = None
 
         self.results = {'Year': [], 'Start_Test': [], 'End_Test': [], 'Date': [],
-                        'Accuracy': [], 'F1': [], 'Predictions': [], 'y_true': []}
+                        'Accuracy': [], 'F1': [], 'Predictions': [], 'y_true': [],
+                        'Training': [], 'Update': []}
 
         
      
