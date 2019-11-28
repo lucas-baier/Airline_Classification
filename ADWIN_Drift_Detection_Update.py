@@ -78,7 +78,7 @@ while start_test_date < pd.Timestamp('2008-10-01'):
         training_flag = False
 
     if temp_drifts:
-        print('Drift detected - Retrain model')
+        print('Drift detected - Update model')
         list_drift.append(temp_drifts[0])
         start_train_date = temp_drifts[0] - pd.DateOffset(years = 2)
         start_test_date = start_train_date + pd.DateOffset(years =2)

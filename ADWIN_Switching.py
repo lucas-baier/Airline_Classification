@@ -97,7 +97,7 @@ while start_test_date < pd.Timestamp('2008-10-01'):
         start_train_date = temp_drifts[0] - pd.DateOffset(years = 2)
         start_test_date = start_train_date + pd.DateOffset(years =2)
 
-        if (temp_drifts[0] - datetime.date(xgboost_model.results['Training'][-1])) > timedelta(days = 2*365):
+        if (temp_drifts[0] - datetime.date(xgboost_model.results['Training'][-1])) > timedelta(days = 365):
             training_flag = True
             print('Retraining of model')
             print('Date today: ', temp_drifts[0])
